@@ -217,12 +217,22 @@
                 }
 
                 bool useLibGit2 = false;
+                bool disabled = false;
                 if (!string.IsNullOrWhiteSpace(this.GitEngine))
                 {
-                    useLibGit2 =
-                        this.GitEngine == "Managed" ? false :
-                        this.GitEngine == "LibGit2" ? true :
-                        throw new ArgumentException("GitEngine property must be set to either \"Managed\" or \"LibGit2\" or left empty.");
+                    switch (this.GitEngine)
+                    {
+                        case "Managed":
+                            break;
+                        case "LibGit2":
+                            useLibGit2 = true;
+                            break;
+                        case "Disabled":
+                            disabled = true;
+                            break;
+                        default:
+                            throw new ArgumentException("GitEngine property must be set to either \"Disabled\", \"Managed\" or \"LibGit2\" or left empty.");
+                    }
                 }
 
                 var cloudBuild = CloudBuild.Active;
@@ -230,7 +240,7 @@
                 string projectDirectory = this.ProjectPathRelativeToGitRepoRoot is object && this.GitRepoRoot is object
                     ? Path.Combine(this.GitRepoRoot, this.ProjectPathRelativeToGitRepoRoot)
                     : this.ProjectDirectory;
-                using var context = GitContext.Create(projectDirectory, writable: useLibGit2);
+                using var context = GitContext.Create(projectDirectory, writable: useLibGit2, disabled: disabled);
                 var oracle = new VersionOracle(context, cloudBuild, overrideBuildNumberOffset);
                 if (!string.IsNullOrEmpty(this.DefaultPublicRelease))
                 {

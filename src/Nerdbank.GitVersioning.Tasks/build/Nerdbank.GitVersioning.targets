@@ -75,6 +75,7 @@
         ProjectPathRelativeToGitRepoRoot=$(ProjectPathRelativeToGitRepoRoot);
         ProjectDirectory=$(GitVersionBaseDirectory);
         OverrideBuildNumberOffset=$(OverrideBuildNumberOffset);
+        NBGV_GitEngine=$(NBGV_GitEngine);
       </NBGV_InnerGlobalProperties>
       <NBGV_CoreTargets>$(MSBuildThisFileDirectory)Nerdbank.GitVersioning.Inner.targets</NBGV_CoreTargets>
     </PropertyGroup>

@@ -119,14 +119,16 @@ namespace Nerdbank.GitVersioning
         /// <param name="path">The path to a directory for which version information is required.</param>
         /// <param name="committish">The SHA-1 or ref for a git commit.</param>
         /// <param name="writable"><see langword="true"/> if mutating the git repository may be required; <see langword="false" /> otherwise.</param>
+        /// <param name="disabled"><see langword="true"/> if git operations should be disabled (implies <paramref name="writable"/> false); <see langword="false" /> otherwise.</param>
         /// <returns></returns>
-        public static GitContext Create(string path, string? committish = null, bool writable = false)
+        public static GitContext Create(string path, string? committish = null, bool writable = false, bool disabled = false)
         {
             if (TryFindGitPaths(path, out string? gitDirectory, out string? workingTreeDirectory, out string? workingTreeRelativePath))
             {
-                GitContext result = writable
-                    ? (GitContext)new LibGit2.LibGit2Context(workingTreeDirectory, gitDirectory, committish)
-                    : new Managed.ManagedGitContext(workingTreeDirectory, gitDirectory, committish);
+                GitContext result =
+                    disabled ? new DisabledGitContext(workingTreeDirectory) :
+                    writable ? (GitContext)new LibGit2.LibGit2Context(workingTreeDirectory, gitDirectory, committish) :
+                    new Managed.ManagedGitContext(workingTreeDirectory, gitDirectory, committish);
                 result.RepoRelativeProjectDirectory = workingTreeRelativePath;
                 return result;
             }
