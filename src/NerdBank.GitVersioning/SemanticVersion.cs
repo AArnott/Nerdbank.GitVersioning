@@ -76,7 +76,7 @@
         /// <summary>
         /// Identifies the various positions in a semantic version.
         /// </summary>
-        internal enum Position
+        public enum Position
         {
             /// <summary>
             /// The <see cref="Version.Major"/> component.

@@ -1050,8 +1050,14 @@ public abstract class BuildIntegrationTests : RepoTestBase, IClassFixture<MSBuil
 
         string expectedBuildMetadataWithoutCommitId = additionalBuildMetadata.Any() ? $"+{string.Join(".", additionalBuildMetadata)}" : string.Empty;
 
+        var optionalFourthComponent = versionOptions.VersionHeightPosition switch
+        {
+            SemanticVersion.Position.Revision => $".{idAsVersion.Revision}",
+            _ => ""
+        };
+
         Assert.Equal($"{version}", buildResult.AssemblyFileVersion);
-        Assert.Equal($"{idAsVersion.Major}.{idAsVersion.Minor}.{idAsVersion.Build}{versionOptions.Version.Prerelease}{expectedBuildMetadata}", buildResult.AssemblyInformationalVersion);
+        Assert.Equal($"{idAsVersion.Major}.{idAsVersion.Minor}.{idAsVersion.Build}{optionalFourthComponent}{versionOptions.Version.Prerelease}{expectedBuildMetadata}", buildResult.AssemblyInformationalVersion);
 
         // The assembly version property should always have four integer components to it,
         // per bug https://github.com/dotnet/Nerdbank.GitVersioning/issues/26

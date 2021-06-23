@@ -421,7 +421,7 @@ namespace Nerdbank.GitVersioning
         /// Gets the position in a computed version that the version height should appear.
         /// </summary>
         [JsonIgnore]
-        internal SemanticVersion.Position? VersionHeightPosition
+        public SemanticVersion.Position? VersionHeightPosition
         {
             get
             {

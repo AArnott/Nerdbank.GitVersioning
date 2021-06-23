@@ -67,6 +67,30 @@ public abstract class VersionOracleTests : RepoTestBase
     }
 
     [Fact]
+    public void Informational_version_has_four_components_when_three_component_version_is_used()
+    {
+        var versionOptions = new VersionOptions { Version = SemanticVersion.Parse("1.2.3") };
+
+        this.WriteVersionFile(versionOptions);
+        this.InitializeSourceControl();
+        this.AddCommits(20);
+        var oracle = new VersionOracle(this.Context);
+        Assert.StartsWith("1.2.3.21+", oracle.AssemblyInformationalVersion);
+    }
+
+    [Fact]
+    public void Informational_version_has_three_components_when_two_component_version_is_used()
+    {
+        var versionOptions = new VersionOptions { Version = SemanticVersion.Parse("1.2") };
+
+        this.WriteVersionFile(versionOptions);
+        this.InitializeSourceControl();
+        this.AddCommits(20);
+        var oracle = new VersionOracle(this.Context);
+        Assert.StartsWith("1.2.21+", oracle.AssemblyInformationalVersion);
+    }
+
+    [Fact]
     public void MajorMinorPrereleaseBuildMetadata()
     {
         VersionOptions workingCopyVersion = new VersionOptions

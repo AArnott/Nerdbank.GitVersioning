@@ -75,6 +75,11 @@ namespace Nerdbank.GitVersioning
 
             this.VersionOptions = this.CommittedVersion ?? this.WorkingVersion;
             this.Version = this.VersionOptions?.Version?.Version ?? Version0;
+            this.VersionHeightFieldPosition = this.VersionOptions?.VersionHeightPosition switch
+            {
+                SemanticVersion.Position.Revision => 4,
+                _ => 3
+            };
 
             // Override the typedVersion with the special build number and revision components, when available.
             if (context.IsRepository)
@@ -102,6 +107,15 @@ namespace Nerdbank.GitVersioning
                     expr => Regex.IsMatch(this.BuildingRef, expr));
             }
         }
+
+        /// <summary>
+        /// The field (component) position of the version height.
+        /// </summary>
+        /// <remarks>
+        /// If the user specifies "1.2.3" as the version number, the field position is 4.
+        /// If the user specifies "1.2", then the field position is 3. For all other scenarios, it also is set to 3.
+        /// </remarks>
+        public int VersionHeightFieldPosition { get; private set; }
 
         /// <summary>
         /// Gets the <see cref="VersionOptions"/> that were deserialized from the contextual commit, if any.
@@ -181,7 +195,7 @@ namespace Nerdbank.GitVersioning
         /// Gets the version string to use for the <see cref="System.Reflection.AssemblyInformationalVersionAttribute"/>.
         /// </summary>
         public string AssemblyInformationalVersion =>
-            $"{this.Version.ToStringSafe(3)}{this.PrereleaseVersion}{FormatBuildMetadata(this.BuildMetadataWithCommitId)}";
+            $"{this.Version.ToStringSafe(this.VersionHeightFieldPosition)}{this.PrereleaseVersion}{FormatBuildMetadata(this.BuildMetadataWithCommitId)}";
 
         /// <summary>
         /// Gets or sets a value indicating whether the project is building
