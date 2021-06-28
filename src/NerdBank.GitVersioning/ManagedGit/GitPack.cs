@@ -31,8 +31,6 @@ namespace Nerdbank.GitVersioning.ManagedGit
         private readonly Func<FileStream> packStream;
         private readonly Lazy<FileStream> indexStream;
         private readonly GitPackCache cache;
-        private MemoryMappedFile packFile;
-        private MemoryMappedViewAccessor accessor;
 
         // Maps GitObjectIds to offets in the git pack.
         private readonly Dictionary<GitObjectId, long> offsets = new Dictionary<GitObjectId, long>();
@@ -97,9 +95,6 @@ namespace Nerdbank.GitVersioning.ManagedGit
             this.packStream = packStream ?? throw new ArgumentException(nameof(packStream));
             this.indexStream = indexStream ?? throw new ArgumentNullException(nameof(indexStream));
             this.cache = cache ?? new GitPackMemoryCache();
-
-            this.packFile = MemoryMappedFile.CreateFromFile(this.packStream(), mapName: null, 0, MemoryMappedFileAccess.Read, HandleInheritability.None, leaveOpen: false);
-            this.accessor = this.packFile.CreateViewAccessor(0, 0, MemoryMappedFileAccess.Read);
         }
 
         /// <summary>
@@ -240,8 +235,6 @@ namespace Nerdbank.GitVersioning.ManagedGit
                 this.indexReader.Value.Dispose();
             }
 
-            this.accessor.Dispose();
-            this.packFile.Dispose();
             this.cache.Dispose();
         }
 
@@ -265,7 +258,7 @@ namespace Nerdbank.GitVersioning.ManagedGit
 
         private Stream GetPackStream()
         {
-            return new MemoryMappedStream(this.accessor);
+            return this.packStream();
         }
 
         private GitPackIndexReader OpenIndex()
